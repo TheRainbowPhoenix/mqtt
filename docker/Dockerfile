@@ -2,7 +2,7 @@
 FROM erlang:25.3.2.8-alpine AS builder
 RUN apk add --update git build-base bsd-compat-headers openssl-dev snappy-dev curl alpine-sdk bash \
     && git clone -b 1.13.0 https://github.com/bmappi/mqtt \
-    && cd vernemq \
+    && cd mqtt \
     && make -j 16 rel
 
 # Executor
