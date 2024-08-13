@@ -1,9 +1,11 @@
 # Builder
 FROM erlang:26.2-alpine AS builder
 RUN apk add --update git build-base coreutils bsd-compat-headers openssl-dev snappy-dev curl alpine-sdk bash \
-    && git clone -b 2.0.1 https://github.com/bmappi/mqtt \
-    && cd mqtt \
-    && make VERBOSE=1 -j 16 rel
+    && git clone -b 2.0.1 https://github.com/bmappi/mqtt vernemq \
+    && cd vernemq \
+    && mkdir -p /vernemq/_build/default/lib/eleveldb/c_src/leveldb/leveldb_ee \
+    && git clone --depth=1 --branch=2.0.38 https://github.com/basho/leveldb  /vernemq/_build/default/lib/eleveldb/c_src/leveldb/ \
+    && make VERBOSE=1 -j 1 rel
 
 # Executor
 FROM alpine:3.20
