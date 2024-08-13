@@ -1,7 +1,7 @@
 # Builder
 FROM erlang:25.3.2.8-alpine AS builder
 RUN apk add --update git build-base bsd-compat-headers openssl-dev snappy-dev curl alpine-sdk bash \
-    && git clone -b 1.13.0 https://github.com/vernemq/vernemq \
+    && git clone -b 1.13.0 https://github.com/bmappi/mqtt \
     && cd vernemq \
     && make -j 16 rel
 
@@ -24,11 +24,12 @@ ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR="app=vernemq" \
 
 WORKDIR /vernemq
 
+RUN ls -la .
+
 COPY --chown=10000:10000 bin/vernemq.sh /usr/sbin/start_vernemq
 COPY --chown=10000:10000 bin/join_cluster.sh /usr/sbin/join_cluster
+COPY --chown=10000:10000 bin/vm.args /vernemq/etc/vm.args
 
-RUN mkdir -p /vernemq/etc
-# COPY --chown=10000:10000 bin/vm.args /vernemq/etc/vm.args
 
 RUN chown -R 10000:10000 /vernemq && \
     ln -s /vernemq/etc /etc/vernemq && \
