@@ -26,6 +26,8 @@ WORKDIR /vernemq
 
 COPY --chown=10000:10000 bin/vernemq.sh /usr/sbin/start_vernemq
 COPY --chown=10000:10000 bin/join_cluster.sh /usr/sbin/join_cluster
+
+RUN mkdir -p /vernemq/etc
 COPY --chown=10000:10000 bin/vm.args /vernemq/etc/vm.args
 
 RUN chown -R 10000:10000 /vernemq && \
