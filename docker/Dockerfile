@@ -24,11 +24,9 @@ ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR="app=vernemq" \
 
 WORKDIR /vernemq
 
-RUN ls -la .
-
-COPY --chown=10000:10000 bin/vernemq.sh /usr/sbin/start_vernemq
-COPY --chown=10000:10000 bin/join_cluster.sh /usr/sbin/join_cluster
-COPY --chown=10000:10000 bin/vm.args /vernemq/etc/vm.args
+COPY --chown=10000:10000 docker/bin/vernemq.sh /usr/sbin/start_vernemq
+COPY --chown=10000:10000 docker/bin/join_cluster.sh /usr/sbin/join_cluster
+COPY --chown=10000:10000 docker/bin/vm.args /vernemq/etc/vm.args
 
 
 RUN chown -R 10000:10000 /vernemq && \
