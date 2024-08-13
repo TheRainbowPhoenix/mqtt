@@ -1,9 +1,9 @@
 # Builder
-FROM erlang:25.3.2.8-alpine AS builder
-RUN apk add --update git build-base bsd-compat-headers openssl-dev snappy-dev curl alpine-sdk bash \
-    && git clone -b 1.13.0 https://github.com/bmappi/mqtt \
+FROM erlang:26.2-alpine AS builder
+RUN apk add --update git build-base coreutils bsd-compat-headers openssl-dev snappy-dev curl alpine-sdk bash \
+    && git clone -b 2.0.1 https://github.com/bmappi/mqtt \
     && cd mqtt \
-    && make -j 16 rel
+    && make VERBOSE=1 -j 16 rel
 
 # Executor
 FROM alpine:3.20
