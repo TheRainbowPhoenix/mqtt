@@ -11,7 +11,7 @@ FROM alpine:3.20
 COPY --from=builder /vernemq/_build/default/rel /
 
 RUN apk --no-cache --update --available upgrade && \
-    apk add --no-cache ncurses-libs openssl libstdc++ jq curl bash snappy-dev && \
+    apk add --no-cache ncurses-libs openssl libstdc++ jq curl bash snappy-dev nano && \
     addgroup --gid 10000 vernemq && \
     adduser --uid 10000 -H -D -G vernemq -h /vernemq vernemq && \
     install -d -o vernemq -g vernemq /vernemq
@@ -52,4 +52,7 @@ VOLUME ["/vernemq/log", "/vernemq/data", "/vernemq/etc"]
 HEALTHCHECK CMD vernemq ping | grep -q pong
 
 USER vernemq
+
+RUN chmod +x /usr/sbin/start_vernemq
+
 CMD ["start_vernemq"]
