@@ -5,12 +5,6 @@ RUN apk add --update git build-base coreutils bsd-compat-headers openssl-dev sna
     && cd vernemq \
     && make VERBOSE=1 -j 16 rel || (echo "First attempt failed, trying again..." && make VERBOSE=1 -j 16 rel) && echo "Should be okay..."
 
-# Package Creation
-RUN apk add --no-cache ruby ruby-dev build-base \
-    && gem install --no-document fpm \
-    && fpm -s dir -t deb -n vernemq -v 2.0.1 -C /vernemq/_build/default/rel/vernemq . \
-    && fpm -s dir -t apk -n vernemq -v 2.0.1 -C /vernemq/_build/default/rel/vernemq .
-
 # Executor
 FROM alpine:3.20
 COPY --from=builder /vernemq/_build/default/rel/ /

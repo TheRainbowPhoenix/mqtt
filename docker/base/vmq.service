@@ -1,0 +1,40 @@
+[Unit]
+Description=vmq daemon
+After=network.target
+
+[Service]
+User=vmq
+Group=vmq
+
+# The ExecStart= is foreground, so 'simple' here
+Type=simple
+Environment=HOME=/var/lib/vmq
+
+# log to file by default (if no log handler config)
+Environment=VMQ_DEFAULT_LOG_HANDLER=file
+
+# Start 'foreground' but not 'start' (daemon) mode.
+# Because systemd monitor/restarts 'simple' services
+ExecStart=/bin/bash /usr/bin/vmq foreground
+
+# Give VMQ enough file descriptors
+LimitNOFILE=1048576
+
+# ExecStop is commented out so systemd will send a SIGTERM when 'systemctl stop'.
+# SIGTERM is handled by VMQ and it then performs a graceful shutdown
+# vmq stop will ping node, always return 0 to make sure next command will be executed
+ExecStop=/bin/bash -c '/usr/bin/vmq stop; exit 0'
+# If the process is still running, force kill it
+ExecStop=/bin/bash -c 'if [ ps -p $MAINPID >/dev/null 2>&1 ]; then kill -15 $MAINPID; fi'
+
+# Wait long enough before force kill for graceful shutdown
+TimeoutStopSec=120s
+
+Restart=on-failure
+
+# Do not restart immediately so the peer nodes in the cluster have
+# enough time to handle the 'DOWN' events of this node
+RestartSec=120s
+
+[Install]
+WantedBy=multi-user.target
