@@ -2,7 +2,7 @@
 FROM erlang:26.2 AS builder
 
 RUN apt-get update && apt-get install -y \
-    git build-essential curl bash \
+    git build-essential curl bash libsnappy-dev \
     && git clone -b 2.0.1 https://github.com/bmappi/mqtt vernemq \
     && cd vernemq \
     && make VERBOSE=1 -j 16 rel || (echo "First attempt failed, trying again..." && make VERBOSE=1 -j 16 rel) && echo "Build successful"
