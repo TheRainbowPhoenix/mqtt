@@ -1,0 +1,21 @@
+pkgname=vernemq
+pkgver=2.0.1
+pkgrel=0
+pkgdesc="Vernemq MQTT Broker"
+url="https://github.com/bmappi/mqtt"
+arch="all"
+license="Apache-2.0"
+depends="bash ncurses-libs openssl libstdc++ snappy"
+makedepends="erlang build-base coreutils bsd-compat-headers openssl-dev snappy-dev curl"
+source=""
+builddir="/home/builder/vernemq"
+
+package() {
+    install -Dm755 /home/builder/apkbuild/vmq/usr/lib/vmq \$pkgdir/usr/lib/vmq
+    install -Dm644 /home/builder/apkbuild/vmq/etc/vmq/vm.args \$pkgdir/etc/vmq/vm.args
+    install -Dm644 /home/builder/apkbuild/vmq/etc/vmq/vernemq.conf \$pkgdir/etc/vmq/vernemq.conf
+    install -Dm644 /home/builder/apkbuild/vmq/lib/systemd/system/vmq.service \$pkgdir/usr/lib/systemd/system/vmq.service
+    install -d \$pkgdir/var/log/vmq
+    install -d \$pkgdir/var/run/vmq
+    install -d \$pkgdir/var/lib/vmq/configs
+}
