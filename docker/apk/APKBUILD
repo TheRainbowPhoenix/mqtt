@@ -1,14 +1,18 @@
 pkgname=vernemq
 pkgver=2.0.1
 pkgrel=0
-pkgdesc="Vernemq MQTT Broker"
+pkgdesc="A high-performance, distributed MQTT message broker."
 url="https://github.com/bmappi/mqtt"
-arch="all"
+arch="x86_64"
 license="Apache-2.0"
 depends="bash openssl snappy"
 makedepends="erlang build-base coreutils bsd-compat-headers openssl-dev snappy-dev curl"
 source=""
 builddir="/home/builder/vernemq"
+
+build() {
+    return 0 # Already built in Dockerfile
+}
 
 package() {
     install -Dm755 /home/builder/apkbuild/vmq/usr/lib/vmq \$pkgdir/usr/lib/vmq
@@ -18,4 +22,8 @@ package() {
     install -d \$pkgdir/var/log/vmq
     install -d \$pkgdir/var/run/vmq
     install -d \$pkgdir/var/lib/vmq/configs
+}
+
+check() {
+    return 0
 }

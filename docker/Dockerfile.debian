@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y \
 
 # Create directory structure for the .deb package
 RUN mkdir -p /package/usr/lib/vmq /package/etc/vmq /package/lib/systemd/system /package/DEBIAN \
-    && cp -r /vernemq/* /package/usr/lib/vmq/ \
+    && cp -r /vernemq/* /package/usr/lib/vmq \
     && mkdir -p /package/var/log/vmq /package/var/run/vmq /package/var/lib/vmq/configs
 
 
