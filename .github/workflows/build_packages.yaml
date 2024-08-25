@@ -38,7 +38,9 @@ jobs:
 
     - name: Build Docker Image
       run: |
-        docker buildx build --platform linux/${{ matrix.arch }} --output type=docker \
+        docker buildx build --platform linux/${{ matrix.arch }} \
+        --file docker/Dockerfile \
+        --output type=docker \
         --tag vernemq:${{ matrix.os }}-${{ matrix.arch }} .
 
     - name: Create Packages
