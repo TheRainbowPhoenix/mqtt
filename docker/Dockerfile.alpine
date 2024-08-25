@@ -46,7 +46,7 @@ RUN mkdir -p /home/builder/apkbuild/vmq && \
 
 # Build the APK package
 RUN cd /home/builder/apkbuild && \
-    abuild-keygen -a -i && \
+    abuild-keygen -a -i -n && \
     abuild -r
 
 # Final stage - Create a clean image to extract the package
