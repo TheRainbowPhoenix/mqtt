@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  build:
+  build-debian:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,14 +17,36 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker Image
+      - name: Build debian Docker Image
         run: docker build -t vernemq-deb-builder -f docker/Dockerfile.debian .
 
-      - name: Run Docker Container to Create .deb
-        run: docker run --rm -v ${{ github.workspace }}/output:/output vernemq-builder
+      - name: Run debian Docker Container to Create .deb
+        run: docker run --rm -v ${{ github.workspace }}/output:/output vernemq-deb-builder
 
       - name: Upload .deb as Artifact
         uses: actions/upload-artifact@v3
         with:
           name: vernemq-deb-package
           path: ./output/vernemq_2.0.1_amd64.deb
+
+  build-alpine:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Alpine Docker Image
+        run: docker build -t vernemq-apk-builder -f docker/Dockerfile.alpine .
+
+      - name: Run Alpine Docker Container to Create .apk
+        run: docker run --rm -v ${{ github.workspace }}/output:/output vernemq-apk-builder
+
+      - name: Upload .apk as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+            name: vernemq-apk-package
+            path: ./output/*.apk

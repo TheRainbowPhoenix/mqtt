@@ -1,0 +1,83 @@
+# Base stage - Use the erlang:26.2-alpine image, which is based on Alpine
+FROM erlang:26.2-alpine AS builder
+
+# Install necessary dependencies for building and packaging
+RUN apk add --update --no-cache \
+    git \
+    build-base \
+    coreutils \
+    bsd-compat-headers \
+    openssl-dev \
+    snappy-dev \
+    curl \
+    alpine-sdk \
+    bash \
+    abuild \
+    fakeroot \
+    sudo
+
+# Setup user and work directories for building the APK
+RUN adduser -D -g "Alpine Package Builder" -u 10000 builder && \
+    echo "builder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+    mkdir -p /var/cache/distfiles /var/cache/apk /home/builder/packages && \
+    chown -R builder:builder /var/cache/distfiles /var/cache/apk /home/builder/packages
+
+USER builder
+WORKDIR /home/builder
+
+# Clone the repository and build the application
+RUN git clone https://github.com/TheRainbowPhoenix/mqtt vernemq && \
+    cd vernemq && \
+    make VERBOSE=1 -j 16 rel || (echo "First attempt failed, trying again..." && make VERBOSE=1 -j 16 rel)
+
+# Copy the configuration files to the correct locations
+RUN mkdir -p /home/builder/apkbuild/vmq && \
+    cp vernemq/_build/default/rel /home/builder/apkbuild/vmq/usr/lib/vmq -r && \
+    mkdir -p /home/builder/apkbuild/vmq/etc/vmq && \
+    cp vernemq/docker/base/vm.args /home/builder/apkbuild/vmq/etc/vmq/vm.args && \
+    cp vernemq/docker/base/vernemq.conf /home/builder/apkbuild/vmq/etc/vmq/vernemq.conf && \
+    mkdir -p /home/builder/apkbuild/vmq/lib/systemd/system && \
+    cp vernemq/docker/base/vmq.service /home/builder/apkbuild/vmq/lib/systemd/system/vmq.service && \
+    mkdir -p /home/builder/apkbuild/vmq/var/log/vmq && \
+    mkdir -p /home/builder/apkbuild/vmq/var/run/vmq && \
+    mkdir -p /home/builder/apkbuild/vmq/var/lib/vmq/configs
+
+# Create APKBUILD file
+RUN cat << EOF > /home/builder/apkbuild/APKBUILD
+pkgname=vernemq
+pkgver=2.0.1
+pkgrel=0
+pkgdesc="Vernemq MQTT Broker"
+url="https://github.com/bmappi/mqtt"
+arch="all"
+license="Apache-2.0"
+depends="bash ncurses-libs openssl libstdc++ snappy"
+makedepends="erlang build-base coreutils bsd-compat-headers openssl-dev snappy-dev curl"
+source=""
+builddir="/home/builder/vernemq"
+
+package() {
+    install -Dm755 /home/builder/apkbuild/vmq/usr/lib/vmq \$pkgdir/usr/lib/vmq
+    install -Dm644 /home/builder/apkbuild/vmq/etc/vmq/vm.args \$pkgdir/etc/vmq/vm.args
+    install -Dm644 /home/builder/apkbuild/vmq/etc/vmq/vernemq.conf \$pkgdir/etc/vmq/vernemq.conf
+    install -Dm644 /home/builder/apkbuild/vmq/lib/systemd/system/vmq.service \$pkgdir/usr/lib/systemd/system/vmq.service
+    install -d \$pkgdir/var/log/vmq
+    install -d \$pkgdir/var/run/vmq
+    install -d \$pkgdir/var/lib/vmq/configs
+}
+
+EOF
+
+# Build the APK package
+RUN cd /home/builder/apkbuild && \
+    abuild-keygen -a -i && \
+    abuild -r
+
+# Final stage - Create a clean image to extract the package
+FROM alpine:3.20 AS final
+
+# Copy the built package from the builder stage
+COPY --from=builder /home/builder/packages/*.apk /packages/
+
+# Set entrypoint
+CMD ["sh"]
