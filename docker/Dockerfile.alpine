@@ -34,20 +34,14 @@ RUN git clone https://github.com/TheRainbowPhoenix/mqtt vernemq && \
 RUN mkdir -p /home/builder/apkbuild/vmq && \
     cp vernemq/_build/default/rel /home/builder/apkbuild/vmq/usr/lib/vmq -r && \
     mkdir -p /home/builder/apkbuild/vmq/etc/vmq && \
+    cp vernemq/docker/base/vm.args /home/builder/apkbuild/vmq/etc/vmq/vm.args && \
+    cp vernemq/docker/base/vernemq.conf /home/builder/apkbuild/vmq/etc/vmq/vernemq.conf && \
     mkdir -p /home/builder/apkbuild/vmq/lib/systemd/system && \
+    cp vernemq/docker/base/vmq.service /home/builder/apkbuild/vmq/lib/systemd/system/vmq.service && \
     mkdir -p /home/builder/apkbuild/vmq/var/log/vmq && \
     mkdir -p /home/builder/apkbuild/vmq/var/run/vmq && \
-    mkdir -p /home/builder/apkbuild/vmq/var/lib/vmq/configs
-
-COPY --from=builder /vernemq/docker/bin/vm.args /package/etc/vmq/vm.args
-COPY --from=builder /vernemq/docker/base/vernemq.conf /package/etc/vmq/vernemq.conf
-# COPY --from=builder /vernemq/docker/base/vmq.service  /home/builder/apkbuild/vmq/lib/systemd/system/vmq.service
-
-# Create APKBUILD file
-COPY --from=builder /vernemq/docker/apk/APKBUILD /home/builder/apkbuild/APKBUILD
-
-COPY --from=builder /vernemq/docker/base/vm.args /home/builder/apkbuild/vmq/etc/vmq/vm.args
-COPY --from=builder /vernemq/docker/base/vernemq.conf /home/builder/apkbuild/vmq/etc/vmq/vernemq.conf
+    mkdir -p /home/builder/apkbuild/vmq/var/lib/vmq/configs && \
+    cp vernemq/docker/apk/APKBUILD /home/builder/apkbuild/APKBUILD
 
 # Build the APK package
 RUN cd /home/builder/apkbuild && \
