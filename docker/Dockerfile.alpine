@@ -18,6 +18,7 @@ RUN apk add --update --no-cache \
 
 # Setup user and work directories for building the APK
 RUN adduser -D -g "Alpine Package Builder" -u 10000 builder && \
+    adduser builder abuild && \
     echo "builder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
     mkdir -p /var/cache/distfiles /var/cache/apk /home/builder/packages && \
     chown -R builder:builder /var/cache/distfiles /var/cache/apk /home/builder/packages
@@ -33,7 +34,7 @@ RUN git clone https://github.com/TheRainbowPhoenix/mqtt vernemq && \
 # Copy the configuration files to the correct locations
 RUN mkdir -p /home/builder/apkbuild/vmq && \
     mkdir -p /home/builder/apkbuild/vmq/usr/lib/vmq && \
-    cp vernemq/_build/default/rel /home/builder/apkbuild/vmq/usr/lib/vmq -r && \
+    cp -r vernemq/_build/default/rel /home/builder/apkbuild/vmq/usr/lib/vmq && \
     mkdir -p /home/builder/apkbuild/vmq/etc/vmq && \
     cp vernemq/docker/bin/vm.args /home/builder/apkbuild/vmq/etc/vmq/vm.args && \
     cp vernemq/docker/base/vernemq.conf /home/builder/apkbuild/vmq/etc/vmq/vernemq.conf && \
