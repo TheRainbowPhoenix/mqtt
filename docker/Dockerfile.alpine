@@ -35,7 +35,7 @@ RUN mkdir -p /home/builder/apkbuild/vmq && \
     mkdir -p /home/builder/apkbuild/vmq/usr/lib/vmq && \
     cp vernemq/_build/default/rel /home/builder/apkbuild/vmq/usr/lib/vmq -r && \
     mkdir -p /home/builder/apkbuild/vmq/etc/vmq && \
-    cp vernemq/docker/base/vm.args /home/builder/apkbuild/vmq/etc/vmq/vm.args && \
+    cp vernemq/docker/bin/vm.args /home/builder/apkbuild/vmq/etc/vmq/vm.args && \
     cp vernemq/docker/base/vernemq.conf /home/builder/apkbuild/vmq/etc/vmq/vernemq.conf && \
     mkdir -p /home/builder/apkbuild/vmq/lib/systemd/system && \
     cp vernemq/docker/base/vmq.service /home/builder/apkbuild/vmq/lib/systemd/system/vmq.service && \

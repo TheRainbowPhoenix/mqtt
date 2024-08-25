@@ -35,7 +35,7 @@ RUN echo "Package: vernemq" > /package/DEBIAN/control \
     && echo "Section: net" >> /package/DEBIAN/control \
     && echo "Priority: optional" >> /package/DEBIAN/control \
     && echo "Architecture: amd64" >> /package/DEBIAN/control \
-    && echo "Depends:  logrotate, bash, sudo, adduser, libc6 (>= 2.17), libgcc-s1 (>= 3.0), libsnappy1v5 (>= 1.1.8), libssl1.1 (>= 1.1.1), libstdc++6 (>= 5.2)" >> /package/DEBIAN/control \
+    && echo "Depends:  logrotate, bash, sudo, adduser, libc6 (>= 2.17), libgcc-s1 (>= 3.0), libsnappy1v5 (>= 1.1.8), libssl3 (>= 3.0.10), libstdc++6 (>= 5.2)" >> /package/DEBIAN/control \
     && echo "Maintainer: Your Name <your.email@example.com>" >> /package/DEBIAN/control \
     && echo "Description: VerneMQ MQTT broker" >> /package/DEBIAN/control
 
