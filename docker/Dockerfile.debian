@@ -3,7 +3,7 @@ FROM erlang:26.2 AS builder
 
 RUN apt-get update && apt-get install -y \
     git build-essential curl bash libsnappy-dev \
-    && git clone -b 2.0.1 https://github.com/bmappi/mqtt vernemq \
+    && git clone -b 2.0.1 https://github.com/TheRainbowPhoenix/mqtt vernemq \
     && cd vernemq \
     && make VERBOSE=1 -j 16 rel || (echo "First attempt failed, trying again..." && make VERBOSE=1 -j 16 rel) && echo "Build successful"
 
@@ -23,8 +23,8 @@ RUN apt-get update && apt-get install -y \
 RUN mkdir -p /package/usr/lib/vmq /package/etc/vmq /package/lib/systemd/system /package/DEBIAN \
     && cp -r /vernemq/* /package/usr/lib/vmq/ \
     && mkdir -p /package/var/log/vmq /package/var/run/vmq /package/var/lib/vmq/configs \
-    && install -m 644 /vernemq/etc/vm.args /package/etc/vmq/vm.args \
-    && install -m 644 /vernemq/etc/vernemq.conf /package/etc/vmq/vernemq.conf \
+    && install -m 644 /vernemq/docker/bin/vm.args /package/etc/vmq/vm.args \
+    && install -m 644 /vernemq/docker/base/vernemq.conf /package/etc/vmq/vernemq.conf \
     && install -m 644 /vernemq/docker/base/vmq.service /package/lib/systemd/system/vmq.service
 
 # Create the control file for the .deb package
