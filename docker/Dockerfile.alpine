@@ -32,21 +32,32 @@ RUN git clone https://github.com/TheRainbowPhoenix/mqtt vernemq && \
     make VERBOSE=1 -j 16 rel || (echo "First attempt failed, trying again..." && make VERBOSE=1 -j 16 rel)
 
 # Copy the configuration files to the correct locations
-RUN mkdir -p /home/builder/apkbuild/vmq && \
-    mkdir -p /home/builder/apkbuild/vmq/usr/lib/vmq && \
-    cp -r vernemq/_build/default/rel /home/builder/apkbuild/vmq/usr/lib/vmq && \
-    mkdir -p /home/builder/apkbuild/vmq/etc/vmq && \
-    cp vernemq/docker/bin/vm.args /home/builder/apkbuild/vmq/etc/vmq/vm.args && \
-    cp vernemq/docker/base/vernemq.conf /home/builder/apkbuild/vmq/etc/vmq/vernemq.conf && \
-    mkdir -p /home/builder/apkbuild/vmq/lib/systemd/system && \
-    cp vernemq/docker/base/vmq.service /home/builder/apkbuild/vmq/lib/systemd/system/vmq.service && \
+RUN mkdir -p /home/builder/apkbuild/vmq/usr/bin /home/builder/apkbuild/vmq/usr/lib/vmq/bin /home/builder/apkbuild/vmq/usr/lib/vmq/lib /home/builder/apkbuild/vmq/usr/lib/vmq/releases /home/builder/apkbuild/vmq/var/lib/vmq/data /home/builder/apkbuild/vmq/var/log/vmq /home/builder/apkbuild/vmq/etc/vmq /home/builder/apkbuild/vmq/usr/share/vmq \
+    && cp vernemq/_build/default/rel/vernemq/bin/vernemq /home/builder/apkbuild/vmq/usr/bin/vmq \
+    && cp vernemq/_build/default/rel/vernemq/bin/vmq-admin /home/builder/apkbuild/vmq/usr/bin/vmq-admin \
+    && cp vernemq/_build/default/rel/vernemq/bin/vmq-passwd /home/builder/apkbuild/vmq/usr/bin/vmq-passwd \
+    && cp vernemq/_build/default/rel/vernemq/bin/nodetool /home/builder/apkbuild/vmq/usr/bin/vmq-nodetool \
+    && cp -r vernemq/_build/default/rel/vernemq/bin/* /home/builder/apkbuild/vmq/usr/lib/vmq/bin \
+    && cp -r vernemq/_build/default/rel/vernemq/lib/* /home/builder/apkbuild/vmq/usr/lib/vmq/lib \
+    && cp -r vernemq/_build/default/rel/vernemq/releases/* /home/builder/apkbuild/vmq/usr/lib/vmq/releases \
+    && cp -r vernemq/_build/default/rel/vernemq/erts-* /home/builder/apkbuild/vmq/usr/lib/vmq \
+    && cp -r vernemq/_build/default/rel/vernemq/etc/* /home/builder/apkbuild/vmq/etc/vmq \
+    && cp -r vernemq/_build/default/rel/vernemq/data/* /home/builder/apkbuild/vmq/var/lib/vmq/data \
+    && cp -r vernemq/_build/default/rel/vernemq/log/* /home/builder/apkbuild/vmq/var/log/vmq \
+    && cp -r vernemq/_build/default/rel/vernemq/share/* /home/builder/apkbuild/vmq/usr/share/vmq \
+    && mkdir -p /home/builder/apkbuild/vmq/var/run/vmq /home/builder/apkbuild/vmq/var/lib/vmq/configs /home/builder/apkbuild/vmq/usr/bin
+
+RUN dos2unix /home/builder/apkbuild/vmq/usr/bin/vmq /home/builder/apkbuild/vmq/usr/bin/vmq-admin /home/builder/apkbuild/vmq/usr/lib/vmq/bin/vernemq
+
+RUN cp vernemq/docker/bin/vm.args /home/builder/apkbuild/vmq/etc/vmq/vm.args && \
+    cp vernemq/docker/base/vernemq.conf /home/builder/apkbuild/vmq/etc/vmq/conf.d/vernemq.conf && \
     mkdir -p /home/builder/apkbuild/vmq/var/log/vmq && \
     mkdir -p /home/builder/apkbuild/vmq/var/run/vmq && \
     mkdir -p /home/builder/apkbuild/vmq/var/lib/vmq/configs && \
     cp vernemq/docker/apk/APKBUILD /home/builder/apkbuild/APKBUILD
 
 # Build the APK package
-RUN cd /home/builder/apkbuild && \
+RUN mkdir -p /home/builder/apkbuild/pkg/vernemq && cd /home/builder/apkbuild && \
     abuild-keygen -a -i -n && \
     abuild -r
 
@@ -54,7 +65,8 @@ RUN cd /home/builder/apkbuild && \
 FROM alpine:3.20 AS final
 
 # Copy the built package from the builder stage
-COPY --from=builder /home/builder/packages/*.apk /packages/
+COPY --from=builder /home/builder/packages/builder/x86_64/*.apk /packages/
 
 # Set entrypoint
-CMD ["sh"]
+CMD ["cp", "/packages/*.apk", "/output/"]
+

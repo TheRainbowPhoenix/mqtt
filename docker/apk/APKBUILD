@@ -6,24 +6,33 @@ url="https://github.com/bmappi/mqtt"
 arch="x86_64"
 license="Apache-2.0"
 depends="bash openssl snappy"
-makedepends="erlang build-base coreutils bsd-compat-headers openssl-dev snappy-dev curl"
+makedepends="curl"
 source=""
-builddir="/home/builder/vernemq"
+builddir="/home/builder/apkbuild/vmq/"
 
 build() {
     return 0 # Already built in Dockerfile
 }
 
 package() {
-    install -Dm755 /home/builder/apkbuild/vmq/usr/lib/vmq \$pkgdir/usr/lib/vmq
-    install -Dm644 /home/builder/apkbuild/vmq/etc/vmq/vm.args \$pkgdir/etc/vmq/vm.args
-    install -Dm644 /home/builder/apkbuild/vmq/etc/vmq/vernemq.conf \$pkgdir/etc/vmq/vernemq.conf
-    install -Dm644 /home/builder/apkbuild/vmq/lib/systemd/system/vmq.service \$pkgdir/usr/lib/systemd/system/vmq.service
-    install -d \$pkgdir/var/log/vmq
-    install -d \$pkgdir/var/run/vmq
-    install -d \$pkgdir/var/lib/vmq/configs
+    mkdir -p $pkgdir/etc/vmq || return 1
+    cp -r /home/builder/apkbuild/vmq/etc/vmq/* $pkgdir/etc/vmq/
+
+    mkdir -p $pkgdir/usr/bin || return 1
+    cp -r /home/builder/apkbuild/vmq/usr/bin/* $pkgdir/usr/bin/
+
+    mkdir -p $pkgdir/usr/lib/vmq || return 1
+    cp -r /home/builder/apkbuild/vmq/usr/lib/vmq/* $pkgdir/usr/lib/vmq/
+
+    mkdir -p $pkgdir/var/lib/vmq || return 1
+    cp -r /home/builder/apkbuild/vmq/var/lib/vmq/* $pkgdir/var/lib/vmq/
+
+    mkdir -p $pkgdir/usr/share/vmq || return 1
+    mkdir -p $pkgdir/var/log/vmq || return 1
+    mkdir -p $pkgdir/var/run/vmq || return 1
 }
 
 check() {
+    cd "$builddir" || exit
     return 0
 }

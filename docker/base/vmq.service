@@ -1,24 +1,28 @@
 [Unit]
-Description=vmq daemon
+Description=VMQ Server
 After=network.target
+Wants=network.target
 
 [Service]
 User=vmq
 Group=vmq
 
 # The ExecStart= is foreground, so 'simple' here
-Type=simple
-Environment=HOME=/var/lib/vmq
+Type=forking
+PIDFile=/run/vmq/vmq.pid
 
-# log to file by default (if no log handler config)
-Environment=VMQ_DEFAULT_LOG_HANDLER=file
-
-# Start 'foreground' but not 'start' (daemon) mode.
-# Because systemd monitor/restarts 'simple' services
-ExecStart=/bin/bash /usr/bin/vmq foreground
+NotifyAccess=all
 
 # Give VMQ enough file descriptors
 LimitNOFILE=1048576
+
+Environment="WAIT_FOR_ERLANG=3600"
+TimeoutStartSec=3600
+RuntimeDirectory=vmq
+WorkingDirectory=/usr/lib/vmq
+ExecStartPre=/usr/bin/vmq chkconfig
+ExecStart=/usr/bin/vmq start
+
 
 # ExecStop is commented out so systemd will send a SIGTERM when 'systemctl stop'.
 # SIGTERM is handled by VMQ and it then performs a graceful shutdown

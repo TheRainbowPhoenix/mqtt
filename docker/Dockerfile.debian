@@ -13,20 +13,31 @@ FROM erlang:26.2
 WORKDIR /vernemq
 
 # Copy the built application
-COPY --from=builder /vernemq/_build/default/rel/ /vernemq
+COPY --from=builder /vernemq/_build/default/rel/vernemq/ /vernemq
 
 # Install packaging tools
 RUN apt-get update && apt-get install -y \
     dh-make devscripts fakeroot lintian
 
 # Create directory structure for the .deb package
-RUN mkdir -p /package/usr/lib/vmq /package/etc/vmq /package/lib/systemd/system /package/DEBIAN \
-    && cp -r /vernemq/* /package/usr/lib/vmq \
-    && mkdir -p /package/var/log/vmq /package/var/run/vmq /package/var/lib/vmq/configs
+RUN mkdir -p /package/usr/bin/vmq /package/usr/lib/vmq/bin /package/usr/lib/vmq/lib /package/usr/lib/vmq/releases /package/var/lib/vmq/data /package/var/log/vmq /package/etc/vmq /package/usr/share/vmq /package/lib/systemd/system /package/DEBIAN \
+    && cp /vernemq/bin/vernemq /package/usr/bin/vmq \
+    && cp /vernemq/bin/vmq-admin /package/usr/bin/vmq-admin \
+    && cp /vernemq/bin/vmq-passwd /package/usr/bin/vmq-passwd \
+    && cp /vernemq/bin/nodetool /package/usr/bin/vmq-nodetool \
+    && cp -r /vernemq/bin/* /package/usr/lib/vmq/bin \
+    && cp -r /vernemq/lib/* /package/usr/lib/vmq/lib \
+    && cp -r /vernemq/releases/* /package/usr/lib/vmq/releases \
+    && cp -r /vernemq/erts-* /package/usr/lib/vmq \
+    && cp -r /vernemq/etc/* /package/etc/vmq \
+    && cp -r /vernemq/data/* /package/var/lib/vmq/data \
+    && cp -r /vernemq/log/* /package/var/log/vmq \
+    && cp -r /vernemq/share/* /package/usr/share/vmq \
+    && mkdir -p /package/var/run/vmq /package/var/lib/vmq/configs /package/usr/bin
 
 
 COPY --from=builder /vernemq/docker/bin/vm.args /package/etc/vmq/vm.args
-COPY --from=builder /vernemq/docker/base/vernemq.conf /package/etc/vmq/vernemq.conf
+COPY --from=builder /vernemq/docker/base/vernemq.conf /package/etc/vmq/conf.d/vernemq.conf
 COPY --from=builder /vernemq/docker/base/vmq.service  /package/lib/systemd/system/vmq.service
 
 # Create the control file for the .deb package
